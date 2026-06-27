@@ -31,6 +31,7 @@ class Worker:
             "completed_tasks", durable=True
         )
         await self._fresh_tasks.consume(self.on_work)
+        print(f'[worker {os.getpid()}] ready', flush=True)
 
     async def on_work(self, message: aio_pika.abc.AbstractIncomingMessage):
         async with message.process():

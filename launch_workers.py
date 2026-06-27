@@ -11,4 +11,4 @@ finally:
     for p in procs:
         p.terminate()
     for p in procs:
-        p.wait()          # дождаться, пока реально умрут
+        p.wait()          
