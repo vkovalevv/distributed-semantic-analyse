@@ -48,7 +48,7 @@ async def run_once(channel: aio_pika.abc.AbstractChannel, corpus) -> float:
     return t1-t0
 
 
-async def run_experiment(channel, corpus, K=5, n_workers=3, csv_path='results.csv'):
+async def run_experiment(channel, corpus, K=15, n_workers=3, csv_path='results.csv'):
     await warm_up(channel, corpus)
     rows = []
     for run in range(K):
