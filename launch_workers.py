@@ -1,14 +1,22 @@
-import sys, subprocess
+import sys
+import subprocess
+import random
+import time
 
-N = int(sys.argv[1])                      # python launch_workers.py 3
-procs = [subprocess.Popen([sys.executable, 'worker.py']) for _ in range(N)]
-try:
-    for p in procs:
-        p.wait()
-except KeyboardInterrupt:
-    pass
-finally:
-    for p in procs:
-        p.terminate()
-    for p in procs:
-        p.wait()          # дождаться, пока реально умрут
+N_VALUES = [1, 2]
+# рандомный порядок, дрейф не коррелируют с N
+random.shuffle(N_VALUES)
+COOLDOWN = 10
+
+for N in N_VALUES:
+    workers = [subprocess.Popen(
+        [sys.executable, 'worker.py', str(i)]) for i in range(N)]
+    try:
+        # блокирует; warm_up ждёт воркеров
+        subprocess.run([sys.executable, 'driver.py', str(N)])
+    finally:
+        for w in workers:
+            w.terminate()
+        for w in workers:
+            w.wait()                  # дождаться смерти ДО следующего N
+    time.sleep(COOLDOWN)
