@@ -5,7 +5,7 @@ import csv
 import statistics
 import aio_pika
 
-M = 500
+M = 10000
 G = 50
 
 
@@ -48,7 +48,7 @@ async def run_once(channel: aio_pika.abc.AbstractChannel, corpus) -> float:
     return t1-t0
 
 
-async def run_experiment(channel, corpus, K=5, n_workers=1, csv_path='results.csv'):
+async def run_experiment(channel, corpus, K=5, n_workers=3, csv_path='results.csv'):
     await warm_up(channel, corpus)
     rows = []
     for run in range(K):
