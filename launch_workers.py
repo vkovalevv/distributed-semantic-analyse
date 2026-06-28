@@ -3,7 +3,7 @@ import subprocess
 import random
 import time
 
-N_VALUES = [1, 2, 3, 4, 5, 6, 8, 10, 12]
+N_VALUES = [1, 2, 3, 4, 5, 6]
 # рандомный порядок, дрейф не коррелируют с N
 random.shuffle(N_VALUES)
 COOLDOWN = 10

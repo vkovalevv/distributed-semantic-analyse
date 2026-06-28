@@ -8,11 +8,13 @@ import aio_pika
 
 from datasets import load_dataset
 
-M = 10000
+n_workers = int(sys.argv[1])
+base = 2000
+M = base * n_workers
 G = 50
 
 
-def prepare_corpus() -> list[tuple[str, str]]:
+async def prepare_corpus() -> list[tuple[str, str]]:
     ds = load_dataset("fancyzhx/ag_news", split="train")
     texts = ds['text'][:M]
 
@@ -52,7 +54,7 @@ async def run_once(channel: aio_pika.abc.AbstractChannel, corpus) -> float:
     return t1 - t0
 
 
-async def run_experiment(channel, corpus, K=5, n_workers=3, csv_path="results.csv"):
+async def run_experiment(channel, corpus, K=5, n_workers=3, csv_path="results_weak.csv"):
     await warm_up(channel, corpus)
     rows = []
     for run in range(K):
@@ -84,7 +86,7 @@ async def run_experiment(channel, corpus, K=5, n_workers=3, csv_path="results.cs
 
 
 async def main():
-    n_workers = int(sys.argv[1])
+    
     connection = await aio_pika.connect_robust("amqp://guest:guest@localhost:5672/")
     async with connection:
         channel = await connection.channel()
