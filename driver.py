@@ -9,7 +9,7 @@ import aio_pika
 from datasets import load_dataset
 
 n_workers = int(sys.argv[1])
-base = 2000
+base = 2500
 M = base * n_workers
 G = 50
 

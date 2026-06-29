@@ -22,7 +22,8 @@ class Worker:
             "amqp://guest:guest@localhost:5672/"
         )
         self._channel = await self._connection.channel()
-        self._model = SentenceTransformer('all-MiniLM-L6-v2')
+        device = os.environ.get("WORKER_DEVICE","cpu")
+        self._model = SentenceTransformer('all-MiniLM-L6-v2', device=device)
         await self._channel.set_qos(prefetch_count=1)
         self._fresh_tasks = await self._channel.declare_queue(
             "fresh_tasks", durable=True
@@ -36,11 +37,14 @@ class Worker:
     async def on_work(self, message: aio_pika.abc.AbstractIncomingMessage):
         async with message.process():
             payload = json.loads(message.body)
-            texts = [item[1] for item in payload['items']]
+            items = payload['items']
+            ids = [itm[0] for itm in items]
+            texts = [itm[1] for itm in items]
             vecs = self._model.encode(texts)
+            results = [[ids[i], vecs[i].tolist()] for i in range(len(ids))]
             await self._channel.default_exchange.publish(
                 message=aio_pika.Message(body=json.dumps(
-                    {'shape': f'{vecs.shape}'}).encode()),
+                    {'results': results}).encode()),
                 routing_key="completed_tasks",
             )
 
